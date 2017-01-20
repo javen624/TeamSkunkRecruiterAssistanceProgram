@@ -1,0 +1,17 @@
+﻿@using Kendo.Mvc.UI;
+@using TeamSkunk.ViewModels;
+
+@* Only use one of these on a page at a time or things start getting weird. *@
+@model SelectionVM
+
+<div class="demo-section k-content">
+
+    @(Html.Kendo().DropDownListFor(m => m)
+.DataTextField("Text")
+.DataValueField("Value")
+.BindTo((IEnumerable<SelectionVM>
+    )ViewData["Roles"])
+.Filter("Contains")
+    )
+
+</div>

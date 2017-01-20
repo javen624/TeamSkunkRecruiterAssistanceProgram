@@ -1,0 +1,9 @@
+﻿@using Kendo.Mvc.UI;
+@using TeamSkunk.ViewModels;
+
+@model DateTime?
+@(Html.Kendo().DateTimePicker()
+                .Name("JoinDate")
+                .Value(Model == null ? DateTime.Now : @Model)
+                .Format("MM/dd/yyyy")
+)

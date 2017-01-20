@@ -1,0 +1,103 @@
+﻿@using Kendo.Mvc.UI;
+@using TeamSkunk.ViewModels;
+
+@model CharacterVM
+
+@{
+    ViewData["Title"] = "CharacterGrid";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@Html.AntiForgeryToken()
+
+<h2>Characters by Member</h2>
+
+<div class="k-widget k-grid">
+    @(Html.Kendo().Grid<CharacterVM>()
+            .Name("Characters")
+            .Columns(columns =>
+            {
+                columns.Bound(m => m.MemberId).Title("GuildMember");
+                columns.Bound(m => m.Name).Title("Name");
+                columns.Bound(m => m.Level).Title("Level");
+                columns.Bound(m => m.Gear).Title("Gear");
+                columns.Bound(m => m.Stars).Title("Stars");
+                //columns.Command(command => { command.Edit(); command.Destroy(); }).Width(120);
+            })
+            .DataSource(ds => ds
+                .Ajax()
+                //.Create(c => c.Action("CreateCharacter", "Character").Data("serialize"))
+                .Read(r => r.Action("ReadCharacters", "Character"))
+                // .Update(u => u.Action("UpdateCharacter", "Character").Data("serialize"))
+                //.Destroy(d => d.Action("DestroyCharacter", "Character").Data("serialize"))
+                .Events(events =>
+                {
+                    events.Error("error_handler");
+                    events.RequestEnd("onRequestEnd");
+                })
+                .Model(m =>
+                {
+                    m.Id(p => p.CharacterId);
+                    m.Field(p => p.MemberId).Editable(false);
+                    m.Field(p => p.Name).Editable(false);
+                    m.Field(p => p.Level).Editable(false);
+                    m.Field(p => p.Gear).Editable(false);
+                    m.Field(p => p.Stars).Editable(false);
+                })
+
+            )
+            .Filterable()
+            .Pageable(p => p.Refresh(true))
+            .Pageable(p => p.PageSizes(true))
+            .Pageable(p => p.PageSizes(new int[] { 10, 25, 50, 100, 500 }))
+            .ColumnMenu()
+            .Sortable()
+            //.Scrollable()
+            .Scrollable(s => { s.Height("auto"); s.Enabled(false); })
+            .Resizable(resize => resize.Columns(true))
+            .Reorderable(reorder => reorder.Columns(true))
+            .Deferred()
+    )
+</div>
+
+@* All initialization scripts are rendered to the bottom of the page, see Layout.cshtml *@
+@section scripts {
+    @Html.Kendo().DeferredScripts()
+}
+
+<script type="text/javascript">
+    function getData() {
+        $.ajax({
+            url: '@Url.Action("ReadCharacters", "Character")',
+            type: 'GET',
+            dataType: "json",
+            success: function (data) {
+                sync(data);
+            }
+        })
+    }
+
+    function error_handler(e) {
+        if (e.errors) {
+            var message = "Errors:\n";
+            $.each(e.errors, function (key, value) {
+                if ('errors' in value) {
+                    $.each(value.errors, function () {
+                        message += this + "\n";
+                    });
+                }
+            });
+            alert(message);
+        }
+    }
+
+    function onRequestEnd(e) {
+        if (e.type == null || e.type == "update" || e.type == "create" || e.type == "destroy") {
+            e.sender.read();
+        }
+    }
+
+    function serialize(data) {
+        data.__RequestVerificationToken = $("input[name=__RequestVerificationToken]").val();
+    }
+</script>

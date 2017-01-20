@@ -1,0 +1,42 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using TeamSkunk.Models
+
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+@if (SignInManager.IsSignedIn(User))
+{
+    
+    <ul class="nav navbar-nav navbar-left">
+        <li>
+            <a asp-area="" asp-controller="Person" asp-action="Index" title="Discord Users">Discord User</a>
+        </li>
+        <li>
+            <a asp-area="" asp-controller="Members" asp-action="Index" title="Guild Members">Guild Member</a>
+        </li>
+        <li>
+            <a asp-area="" asp-controller="Character" asp-action="Index" title="Character">Character</a>
+        </li>
+        <li>
+            <a asp-area="" asp-controller="Guilds" asp-action="Index" title="Guilds">Guild</a>
+        </li>
+    </ul>
+
+    <form asp-area="" asp-controller="Account" asp-action="LogOff" method="post" id="logoutForm" class="navbar-right">
+        <ul class="nav navbar-nav navbar-right">
+            <li>
+                <a asp-area="" asp-controller="Manage" asp-action="Index" title="Manage">Hello @UserManager.GetUserName(User)!</a>
+            </li>
+            <li>
+                <button type="submit" class="btn btn-link navbar-btn navbar-link">Log off</button>
+            </li>
+        </ul>
+    </form>
+}
+else
+{
+    <ul class="nav navbar-nav navbar-right">
+        <li><a asp-area="" asp-controller="Account" asp-action="Register">Register</a></li>
+        <li><a asp-area="" asp-controller="Account" asp-action="Login">Log in</a></li>
+    </ul>
+}

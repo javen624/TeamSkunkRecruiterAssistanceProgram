@@ -1,0 +1,132 @@
+@using Kendo.Mvc.UI;
+@using TeamSkunk.ViewModels;
+
+@model MemberVM
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@Html.AntiForgeryToken()
+
+<h2>Guild Members</h2>
+
+<div class="k-widget k-grid">
+    @(Html.Kendo().Grid<MemberVM>()
+            .Name("GuildMembers")
+            .Columns(columns =>
+            {
+                columns.Bound(m => m.Guild).Title("Guild").ClientTemplate("#=Guild.Text#").EditorTemplateName("GuildDropDown").Filterable(false).Width(190);
+                columns.Bound(m => m.Name).Title("Name").Width(120);
+                columns.Bound(m => m.JoinDate).Title("JoinDate").Format("{0:dd/MM/yyyy}").Width(120);
+                columns.Bound(m => m.RecruitedBy).Title("Recruited By:").ClientTemplate("#=RecruitedBy.Text#").EditorTemplateName("RecruiterDropDown").Filterable(false).Width(140);
+                columns.Bound(m => m.Timezone).Title("Timezone").ClientTemplate("#=Timezone.Text#").EditorTemplateName("TimezoneDropDown").Filterable(false).Width(120);
+                columns.Bound(m => m.isOfficer).Title("Officer?").Width(100);
+                columns.Bound(m => m.isRecruiter).Title("Recruiter?").Width(120);
+                columns.Bound(m => m.isLeader).Title("Leader?").Width(100);
+                columns.Bound(m => m.swgohURL).Title("RosterLink").Width(120);
+                columns.Bound(m => m.Person).Title("DiscordName").ClientTemplate("#=Person.Text#").EditorTemplateName("PersonDropDown").Filterable(false).Width(140);
+                columns.Command(command => { command.Edit(); command.Destroy(); command.Custom("Sync").Click("sync"); }).Width(120);
+            })
+            .DataSource(ds => ds
+                .Ajax()
+                .Create(c => c.Action("CreateMember", "Members").Data("serialize"))
+                .Read(r => r.Action("ReadMembers", "Members"))
+                .Update(u => u.Action("UpdateMember", "Members").Data("serialize"))
+                .Destroy(d => d.Action("DestroyMember", "Members").Data("serialize"))
+                .Events(events =>
+                {
+                    events.Error("error_handler");
+                    events.RequestEnd("onRequestEnd");
+                })
+                .Model(m =>
+                {
+                    m.Id(p => p.MemberId);
+                    m.Field(p => p.Guild).Editable(true).DefaultValue((SelectionVM)ViewData["defaultGuild"]);
+                    m.Field(p => p.Name).Editable(true);
+                    m.Field(p => p.JoinDate).Editable(true).DefaultValue(DateTime.Now);
+                    m.Field(p => p.RecruitedBy).Editable(true).DefaultValue((SelectionVM)ViewData["defaultRecruiter"]);
+                    m.Field(p => p.Timezone).Editable(true).DefaultValue((SelectionStringVM)ViewData["defaultTimezone"]);
+                    m.Field(p => p.isOfficer).Editable(true);
+                    m.Field(p => p.isRecruiter).Editable(true);
+                    m.Field(p => p.isLeader).Editable(true);
+                    m.Field(p => p.swgohURL).Editable(true);
+                    m.Field(p => p.Person).Editable(true).DefaultValue((SelectionVM)ViewData["defaultPerson"]);
+                })
+
+            )
+            .Filterable()
+            .Pageable(p => p.Refresh(true))
+            .Pageable(p => p.PageSizes(true))
+            .Pageable(p => p.PageSizes(new int[] { 10, 25, 50, 100, 500 }))
+            .ColumnMenu()
+            .Sortable()
+            .Scrollable(s => { s.Height("700px"); })
+            //.Scrollable(s => { s.Height("auto"); s.Enabled(false); })
+            .Resizable(resize => resize.Columns(true))
+            .Reorderable(reorder => reorder.Columns(true))
+            .Deferred()
+    )
+</div>
+
+@* All initialization scripts are rendered to the bottom of the page, see Layout.cshtml *@
+@section scripts {
+    @Html.Kendo().DeferredScripts()
+}
+
+<script type="text/javascript">
+    function onRequestEnd(e) {
+        if (e.type == null || e.type == "update" || e.type == "create" || e.type == "destroy") {
+            e.sender.read();
+        }
+    }
+
+    function serialize(data) {
+        data.__RequestVerificationToken = $("input[name=__RequestVerificationToken]").val();
+    }
+</script>
+
+<script type="text/javascript">
+    function sync(e) {
+        e.preventDefault();
+        var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+
+        $.ajax({
+            url: '@Url.Action("getHtml","Members")',
+            data: { memberId: dataItem.MemberId, playerLink: dataItem.swgohURL },
+            success: function (data) {
+                //call is successfully completed and we got result in data
+                alert("Member data Sync'd");
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                //some errror, some show err msg to user and log the error  
+                alert(xhr.responseText);
+
+            }
+        });
+    }
+
+    function error_handler(e) {
+        if (e.errors) {
+            var message = "Errors:\n";
+            $.each(e.errors, function (key, value) {
+                if ('errors' in value) {
+                    $.each(value.errors, function () {
+                        message += this + "\n";
+                    });
+                }
+            });
+            alert(message);
+        }
+    }
+
+</script>
+
+<script type="text/kendo" id="guildsTemplate">
+    #:data.Text#
+</script>
+
+<script type="text/javascript">
+    var guildsTemplate = kendo.template($("#guildsTemplate").html(), { useWithBlock: false });
+</script>

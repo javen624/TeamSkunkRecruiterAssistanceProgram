@@ -250,3 +250,11 @@ paket-files/
 # JetBrains Rider
 .idea/
 *.sln.iml
+/TeamSkunk/bower_components
+/TeamSkunk/src/TeamSkunk/wwwroot/js/cultures
+/TeamSkunk/src/TeamSkunk/wwwroot/js/messages
+/TeamSkunk/src/TeamSkunk/wwwroot/lib/highcharts
+/TeamSkunk/src/TeamSkunk/wwwroot/lib/kendo-ui/js/cultures
+/TeamSkunk/src/TeamSkunk/wwwroot/lib/kendo-ui/js/messages
+/TeamSkunk/src/TeamSkunk/wwwroot/lib/kendo-ui/src/js/messages
+/TeamSkunk/src/TeamSkunk/wwwroot/lib/kendo-ui/src/js/cultures

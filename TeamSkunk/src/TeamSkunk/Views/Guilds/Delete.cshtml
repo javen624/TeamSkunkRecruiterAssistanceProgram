@@ -1,0 +1,59 @@
+@model TeamSkunk.Models.Guild
+
+@{
+    ViewData["Title"] = "Delete";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Delete</h2>
+
+<h3>Are you sure you want to delete this?</h3>
+<div>
+    <h4>Guild</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Order)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Order)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.RaidTimes)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.RaidTimes)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Remarks)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Remarks)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.ResetTime)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.ResetTime)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Tier)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Tier)
+        </dd>
+    </dl>
+    
+    <form asp-action="Delete">
+        <div class="form-actions no-color">
+            <input type="submit" value="Delete" class="btn btn-default" /> |
+            <a asp-action="Index">Back to List</a>
+        </div>
+    </form>
+</div>

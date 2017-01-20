@@ -1,0 +1,103 @@
+@using Kendo.Mvc.UI;
+@using TeamSkunk.ViewModels;
+
+@model PersonVM
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@Html.AntiForgeryToken()
+
+<h2>Discord Users</h2>
+
+<div>
+    @(Html.Kendo().Grid<PersonVM>()
+                .Name("Persons")
+                .Columns(columns =>
+                {
+                    columns.Bound(m => m.DiscordName).Title("Discord Name");
+                    columns.Bound(m => m.NumberOfMembers).Title("# Characters in Guilds");
+                    columns.Command(command => { command.Edit(); command.Destroy(); });
+                })
+                .ToolBar(toolbar =>
+                {
+                    toolbar.Create().Text("Add New Discord User");
+                })
+                .DataSource(ds => ds
+                    .Ajax()
+                    .Create(c => c.Action("CreatePerson", "Person").Data("serialize"))
+                    .Read(r => r.Action("ReadPerson", "Person"))
+                    .Update(u => u.Action("UpdatePerson", "Person").Data("serialize"))
+                    .Destroy(d => d.Action("DestroyPerson", "Person").Data("serialize"))
+                    .Events(events =>
+                    {
+                        events.Error("error_handler");
+                        events.RequestEnd("onRequestEnd");
+                    })
+                .Model(m =>
+                {
+                    m.Id(p => p.PersonId);
+                    m.Field(p => p.DiscordName).Editable(true);
+                    m.Field(p => p.NumberOfMembers).Editable(false);
+                })
+
+            )
+            .Filterable()
+            .Pageable(p => p.Refresh(true))
+            .Pageable(p => p.PageSizes(true))
+            .Pageable(p => p.PageSizes(new int[] { 10, 25, 50, 100, 500 }))
+            .ColumnMenu()
+            .Sortable()
+            .Scrollable(s =>
+            {
+                s.Height("auto"); s.Enabled(false);
+            })
+            .Resizable(resize => resize.Columns(true))
+            .Reorderable(reorder => reorder.Columns(true))
+            .Deferred()
+    )
+</div>
+
+@* All initialization scripts are rendered to the bottom of the page, see Layout.cshtml *@
+@section scripts {
+    @Html.Kendo().DeferredScripts()
+}
+
+<script type="text/javascript">
+    function onRequestEnd(e) {
+        if (e.type == null || e.type == "update" || e.type == "create" || e.type == "destroy") {
+            e.sender.read();
+        }
+    }
+
+    function serialize(data) {
+        data.__RequestVerificationToken = $("input[name=__RequestVerificationToken]").val();
+    }
+</script>
+
+<script type="text/javascript">
+    function error_handler(e) {
+        if (e.errors) {
+            var message = "Errors:\n";
+            $.each(e.errors, function (key, value) {
+                if ('errors' in value) {
+                    $.each(value.errors, function () {
+                        message += this + "\n";
+                    });
+                }
+            });
+            alert(message);
+        }
+    }
+
+</script>
+
+<script type="text/kendo" id="guildsTemplate">
+    #:data.Text#
+</script>
+
+<script type="text/javascript">
+    var guildsTemplate = kendo.template($("#guildsTemplate").html(), { useWithBlock: false });
+</script>

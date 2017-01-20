@@ -1,0 +1,213 @@
+@using Kendo.Mvc.UI;
+@using TeamSkunk.ViewModels;
+
+@model GuildVM
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@Html.AntiForgeryToken()
+
+<h2>Guilds</h2>
+
+<div>
+    @(Html.Kendo().Grid<GuildVM>()
+                .Name("Guilds")
+                .Columns(columns =>
+                {
+                    columns.Bound(m => m.Order).Title("Order");
+                    columns.Bound(m => m.TransferTrump).Title("Transfer?") ;
+                    columns.Bound(m => m.Name).Title("Name");
+                    columns.Bound(m => m.swgohLink).Title("swgoh.gg URL");
+                    columns.Bound(m => m.MemberCount).Title("# Members");
+                    columns.Bound(m => m.Tier).Title("Tier").ClientTemplate("#=Tier.Text#").EditorTemplateName("TierDropDown").Filterable(false).Width(180);
+                    columns.Bound(m => m.ResetTime).Title("ResetTime").Format("{0:h:mm:ss}");
+                    columns.Bound(m => m.RaidTimes).Title("RaidTimes");
+                    columns.Bound(m => m.Remarks).Title("Remarks");
+                    columns.Bound(m => m.Recruiters).Title("Recruiters");
+                    columns.Bound(m => m.Officers).Title("Officers");
+                    columns.Command(command => { command.Edit(); command.Destroy(); command.Custom("Sync").Click("sync"); });
+                })
+                .ToolBar(toolbar =>
+                {
+                    toolbar.Create().Text("Add New Guild");
+                })
+                .DataSource(ds => ds
+                    .Ajax()
+                    .Create(c => c.Action("CreateGuild", "Guilds").Data("serialize"))
+                    .Read(r => r.Action("ReadGuild", "Guilds"))
+                    .Update(u => u.Action("UpdateGuild", "Guilds").Data("serialize"))
+                    .Destroy(d => d.Action("DestroyGuild", "Guilds").Data("serialize"))
+                    .Events(events =>
+                    {
+                        events.Error("error_handler");
+                    })
+                .Model(m =>
+                {
+                    m.Id(p => p.GuildId);
+                    m.Field(p => p.Order).Editable(true);
+                    m.Field(p => p.TransferTrump).Editable(true);
+                    m.Field(p => p.Name).Editable(true);
+                    m.Field(p => p.swgohLink).Editable(true);
+                    m.Field(p => p.MemberCount).Editable(false);
+                    m.Field(p => p.Tier).Editable(true).DefaultValue(new SelectionVM { Text = "None" });
+                    m.Field(p => p.ResetTime.Value.ToString("H:mm tt")).Editable(true);
+                    m.Field(p => p.RaidTimes).Editable(true);
+                    m.Field(p => p.Remarks).Editable(true);
+                    m.Field(p => p.Recruiters).Editable(false);
+                    m.Field(p => p.Officers).Editable(false);
+                })
+
+            )
+            .Filterable()
+            .Pageable(p => p.Refresh(true))
+            .Pageable(p => p.PageSizes(true))
+            .Pageable(p => p.PageSizes(new int[] { 10, 25, 50, 100, 500 }))
+            .ColumnMenu()
+            .Sortable()
+            .Scrollable(s => { s.Height("700px"); })
+            //.Scrollable(s => { s.Height("auto"); s.Enabled(false);})
+            .Resizable(resize => resize.Columns(true))
+            .Reorderable(reorder => reorder.Columns(true))
+            .Deferred()
+    )
+</div>
+
+        @* All initialization scripts are rendered to the bottom of the page, see Layout.cshtml *@
+@section scripts {
+    @Html.Kendo().DeferredScripts()
+}
+
+<script type="text/javascript">
+    function onRequestEnd(e) {
+        if (e.type == null || e.type == "update" || e.type == "create" || e.type == "destroy") {
+            e.sender.read();
+        }
+    }
+
+    function serialize(data) {
+        data.__RequestVerificationToken = $("input[name=__RequestVerificationToken]").val();
+    }
+</script>
+
+<script type="text/javascript">
+    function sync(e) {
+        e.preventDefault();
+        var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+        
+        $.ajax({
+            url: '@Url.Action("getHtml","Guilds")',
+            data: { guildId: dataItem.GuildId, link: dataItem.swgohLink },
+            success: function (data) {
+                //call is successfully completed and we got result in data
+                alert("Guild data Sync'd");
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                //some errror, some show err msg to user and log the error  
+                alert(xhr.responseText);
+
+            }
+        });
+    }
+
+    function error_handler(e) {
+        if (e.errors) {
+            var message = "Errors:\n";
+            $.each(e.errors, function (key, value) {
+                if ('errors' in value) {
+                    $.each(value.errors, function () {
+                        message += this + "\n";
+                    });
+                }
+            });
+            alert(message);
+        }
+    }
+
+</script>
+
+<script type="text/kendo" id="guildsTemplate">
+    #:data.Text#
+</script>
+
+<script type="text/javascript">
+    var guildsTemplate = kendo.template($("#guildsTemplate").html(), { useWithBlock: false });
+</script>
+
+
+        @*
+            @model IEnumerable<TeamSkunk.Models.Guild>
+
+            @{
+                ViewData["Title"] = "Index";
+                Layout = "~/Views/Shared/_Layout.cshtml";
+            }
+
+            <h2>Guilds</h2>
+
+            <p>
+                <a asp-action="Create">Create New</a>
+            </p>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Name)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Order)
+                        </th>
+                        <th>
+                            Members:
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.RaidTimes)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Remarks)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.ResetTime)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Tier)
+                        </th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+            @foreach (var item in Model) {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Name)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Order)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Members.Count) / 50
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.RaidTimes)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Remarks)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.ResetTime)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Tier)
+                        </td>
+                        <td>
+                            <a asp-action="Edit" asp-route-id="@item.GuildId">Edit</a> |
+                            <a asp-action="Details" asp-route-id="@item.GuildId">Details</a> |
+                            <a asp-action="Delete" asp-route-id="@item.GuildId">Delete</a>
+                        </td>
+                    </tr>
+            }
+                </tbody>
+            </table>
+        *@

@@ -1,0 +1,55 @@
+@model TeamSkunk.Models.Member
+
+@{
+    ViewData["Title"] = "Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Guild Member Details</h2>
+
+<div>
+    <h4>Member of: @Model.Guild.Name</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            Guild Name
+        </dt>
+        <dd>
+            @ViewBag.GuildName
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.JoinDate)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.JoinDate)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.isOfficer)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.isOfficer)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.isRecruiter)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.isRecruiter)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.isLeader)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.isLeader)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.MemberId">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>

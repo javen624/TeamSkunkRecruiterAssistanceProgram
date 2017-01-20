@@ -1,0 +1,11 @@
+﻿@using Kendo.Mvc.UI;
+@using TeamSkunk.ViewModels;
+
+@model MemberVM
+
+@(Html.Kendo().DatePickerFor(model => model.JoinDate)
+    .Name("JoinDate")
+
+//The name of the datepicker is mandatory. It specifies the "id" attribute of the widget.
+.Value(DateTime.Today) //Set the value of the datepicker
+             .Start(CalendarView.Year))

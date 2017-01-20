@@ -1,0 +1,55 @@
+@model TeamSkunk.Models.Guild
+
+@{
+    ViewData["Title"] = "Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>Guild</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Order)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Order)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.RaidTimes)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.RaidTimes)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Remarks)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Remarks)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.ResetTime)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.ResetTime)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Tier)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Tier)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.GuildId">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>
